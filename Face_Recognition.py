@@ -78,7 +78,7 @@ for i, img_path in enumerate(images_names_for_test):
     real_y = y_for_test[i]
     real_name = target_names[real_y]
 
-    if predicted_name == real_name:
+    if predicted_name == real_name: 
         correct += 1
         print("Correct - Name:", predicted_name)
     else:
