@@ -95,3 +95,4 @@ class pca_class:
         else:
             print(f"Person {k} : {min_index} - Unknown")
             return "Unknown"
+

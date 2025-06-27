@@ -96,3 +96,9 @@ print("Total Train Images:", no_of_images_of_one_person * len(target_names))
 print("Total Time for Recognition:", round(net_time_of_reco, 4), "seconds")
 print("Average Time per Recognition:", round(net_time_of_reco / (i + 1), 4), "seconds")
 print("Training Time:", round(training_time, 4), "seconds")
+
+
+# # Xuất model ra file .pkl
+import pickle
+with open("../models/pca_model.pkl", "wb") as f:
+    pickle.dump(my_algo, f)
