@@ -8,7 +8,7 @@ class DatasetClass:
     def __init__(self, required_no): 
     # required_no: số ảnh cần lấy cho tập huấn luyện mỗi người (mỗi thư mục con tương ứng 1 người)
 
-        self.dir = ("datasets/face_dataset_v2/face_dataset_v2") # Đường dẫn đến thư mục chứa ảnh
+        self.dir = ("./datasets") # Đường dẫn đến thư mục chứa ảnh
         
         # Khởi tạo các biến để lưu trữ thông tin về ảnh và nhãn
         self.images_name_for_train = [] # Danh sách đường dẫn ảnh train

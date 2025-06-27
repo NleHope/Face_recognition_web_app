@@ -1,6 +1,4 @@
 import numpy as np
-import cv2
-
 
 class PCA:
     def find_k(eigenvalues, quality_percent):
@@ -23,6 +21,18 @@ class PCA:
             K += 1
         return K
 
+    def compute_auto_threshold(self, method='percentile', value=95):
+        dists = []
+        for label in np.unique(self.y):
+            indices = self.label_indices[label]
+            mean_vec = self.class_means[label]
+            for idx in indices:
+                sample = self.new_coordinates[:, idx]
+                dist = np.linalg.norm(sample - mean_vec)
+                dists.append(dist)
+        dists = np.array(dists)
+        return np.percentile(dists, value)
+
     def __init__(self, images, y, target_names, no_of_elements, quality_percent=100):
         """
         images: Mảng 2D (N^2 x M), mỗi cột là một ảnh đã flatten.
@@ -37,7 +47,6 @@ class PCA:
         self.target_names = target_names
         self.quality_percent = quality_percent
 
-
         # 1. Tính ảnh trung bình
         mean = np.mean(self.images, axis=1)  # trung bình theo chiều ngang (M x 1)
         self.mean_face = mean.reshape(-1, 1)
@@ -50,6 +59,12 @@ class PCA:
 
         # 4. Chiếu toàn bộ tập huấn luyện lên không gian đặc trưng
         self.new_coordinates = self.get_projected_data()
+
+        # 5. Sau khi có new_coordinates, tính vector trung bình từng lớp
+        self._compute_class_means()
+
+        # 6. Tính threshold tự động từ dữ liệu training (nếu muốn)
+        self.threshold = self.compute_auto_threshold()
 
     def _get_eigenfaces(self, input_data):
         """
@@ -93,52 +108,82 @@ class PCA:
         Phi = self.training_set  # đã trừ mean trước đó
         return self.eigenfaces.T @ Phi  # (K x M)
 
+    def _compute_class_means(self):
+        """
+        Tính vector trung bình trong không gian đặc trưng cho mỗi lớp (Ω_k).
+        """
+        self.class_means = {}  # {label: mean_vector}
+        #dictionary rỗng để lưu vector trung bình PCA-space cho từng lớp.
+        # Key: label (ví dụ: 0, 1, 2 là mã số các người khác nhau)
+        # Value: mean_vector là vector trung bình của các ảnh thuộc lớp đó trong không gian PCA.
+
+        self.label_indices = {}
+
+        # Duyệt qua tất cả các nhãn khác nhau (label) trong tập huấn luyện
+        for label in np.unique(self.y):
+
+            # Trả về indices là danh sách vị trí ảnh có nhãn đó
+            indices = np.where(np.array(self.y) == label)[0]
+
+            # Lưu danh sách chỉ số ảnh của lớp label vào dictionary label_indices
+            self.label_indices[label] = indices
+
+            #Lấy các vector đặc trưng PCA tương ứng với các ảnh thuộc lớp label
+            class_vectors = self.new_coordinates[:, indices]
+
+            # Tính vector trung bình trong PCA-space của lớp label
+            self.class_means[label] = np.mean(class_vectors, axis=1)
+    
     def recognize_face_knn(self, face_vector, k=3, threshold=None):
         """
-        Nhận diện khuôn mặt bằng thuật toán KNN.
-
-        Parameters:
-            face_vector: vector ảnh đầu vào (N x 1), đã flatten.
-            k: số lượng lân cận gần nhất.
-            threshold: ngưỡng khoảng cách tùy chọn (nếu muốn loại bỏ ảnh quá khác biệt).
-
-        Returns:
-            Tên người được nhận diện hoặc 'Unknown'
-
-        Ta sẽ:
-        Chiếu ảnh mới vào không gian đặc trưng PCA như trước.
-        Tính khoảng cách Euclidean giữa vector mới với tất cả vector huấn luyện (không chỉ trung bình lớp).
-        Lấy k điểm gần nhất.
-        Bỏ phiếu (majority voting) theo nhãn để xác định lớp.
+        Nhận diện khuôn mặt sử dụng ngưỡng + KNN trong không gian PCA.
         """
         if face_vector.shape != self.mean_face.shape:
-            raise ValueError(f"Kích thước ảnh không khớp: {face_vector.shape} != {self.mean_face.shape}")
-
-        # Chuẩn hóa và chiếu vào không gian đặc trưng
+            raise ValueError("Ảnh không cùng kích thước với ảnh huấn luyện.")
+        if threshold is None:
+            threshold = self.threshold
+            
         phi = face_vector - self.mean_face
-        projected_vector = self.eigenfaces.T @ phi  # (K x 1)
+        projected = self.eigenfaces.T @ phi
+        projected = projected.flatten()
 
-        # Tính khoảng cách đến toàn bộ tập huấn luyện
-        projected_vector = projected_vector.flatten()  # (K, )
-        all_vectors = self.new_coordinates.T  # (M x K)
-        distances = np.linalg.norm(all_vectors - projected_vector, axis=1)  # (M, )
+        # Tính khoảng cách đến trung bình từng lớp
+        distances_to_class = {
+            label: np.linalg.norm(projected - mean_vec) for label, mean_vec in self.class_means.items()
+        }
 
-        # Lấy k vector gần nhất
-        nearest_indices = np.argsort(distances)[:k]
-        nearest_labels = [self.y[i] for i in nearest_indices]
+        # Lọc các lớp có khoảng cách < threshold
+        valid_labels = [label for label, dist in distances_to_class.items() if dist < threshold]
 
-        # Bỏ phiếu theo nhãn
-        votes = {}
-        for label in nearest_labels:
-            votes[label] = votes.get(label, 0) + 1
+        if not valid_labels:
+            return "Unknown"
 
-        # Tìm nhãn được bình chọn nhiều nhất
-        predicted_label = max(votes, key=votes.get)
+        # Lấy tất cả ảnh trong các lớp valid
+        candidate_indices = []
+        for label in valid_labels:
+            candidate_indices.extend(self.label_indices[label])
+            # self.label_indices[label] là danh sách các chỉ số ảnh trong lớp label.
+            # extend(...) để thêm tất cả các chỉ số ảnh của lớp đó vào danh sách candidate_indices
+        
+        # Tính khoảng cách đến từng ảnh ứng viên
+        candidates = self.new_coordinates[:, candidate_indices].T  
+        dists = np.linalg.norm(candidates - projected, axis=1)
 
-        # Nếu dùng threshold để kiểm tra khoảng cách gần nhất
-        if threshold is not None:
-            min_distance = distances[nearest_indices[0]]
-            if min_distance > threshold:
-                return "Unknown"
+        # Lấy k láng giềng gần nhất
+        if len(dists) < k:
+            # Kiểm tra nếu số lượng ảnh hợp lệ < k, thì giảm k xuống bằng số ảnh hiện có
+            k = len(dists)
 
+        #  trả về thứ tự chỉ số sắp xếp của các ảnh theo khoảng cách tăng dần.
+        knn_indices = np.argsort(dists)[:k]
+
+        # Lấy nhãn label tương ứng với k ảnh gần nhất.
+        knn_labels = [self.y[candidate_indices[i]] for i in knn_indices]
+
+        # Bỏ phiếu
+        vote_count = {}
+        for label in knn_labels:
+            vote_count[label] = vote_count.get(label, 0) + 1
+
+        predicted_label = max(vote_count, key=vote_count.get)
         return self.target_names[predicted_label]

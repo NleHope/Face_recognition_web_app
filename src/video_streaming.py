@@ -211,7 +211,7 @@ async def frame_processor_task():
                                 continue
 
                             # ✅ Nhận diện PCA
-                            label = pca_model.recognize_face_knn(face_vector, k=5, threshold=4000)
+                            label = pca_model.recognize_face_knn(face_vector, threshold=3000)
 
                             det["label"] = label  # Gắn label vào detection
 
