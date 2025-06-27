@@ -3,16 +3,16 @@ import time
 import numpy as np
 
 # importing algorithms
-from PCA import pca_class
+from algo_pca import PCA
 
 # importing feature extraction classes
-from images_to_matrix import images_to_matrix_class
-from dataset import dataset_class
+from images_to_matrix import ImageMatrixConverter 
+from dataset import DatasetClass
 
 
 # Số ảnh dùng để train cho mỗi người (còn lại sẽ dùng để test)
 no_of_images_of_one_person = 20
-dataset_obj = dataset_class(no_of_images_of_one_person)
+dataset_obj = DatasetClass(no_of_images_of_one_person)
 
 # Dữ liệu huấn luyện
 images_names = dataset_obj.images_name_for_train
@@ -31,7 +31,7 @@ training_start_time = time.process_time()
 img_width, img_height = 92, 112
 
 # Chuyển ảnh sang ma trận
-i_t_m_c = images_to_matrix_class(images_names, img_width, img_height)
+i_t_m_c = ImageMatrixConverter(images_names, img_width, img_height)
 scaled_face = i_t_m_c.get_matrix()  # Dạng: (N^2, M)
 
 # Hiển thị ảnh gốc đầu tiên
@@ -39,7 +39,7 @@ cv2.imshow("Original Image", cv2.resize(np.reshape(scaled_face[:, 1], (img_heigh
 cv2.waitKey(0)
 
 # Khởi tạo PCA và huấn luyện
-my_algo = pca_class(scaled_face, y, target_names, no_of_elements, num_components=14)
+my_algo = PCA(scaled_face, y, target_names, no_of_elements, quality_percent=95)
 
 # Hiển thị một ảnh đã được chiếu lên không gian đặc trưng PCA
 # Lấy dữ liệu đã chiếu lên PCA space

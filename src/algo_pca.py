@@ -2,19 +2,40 @@ import numpy as np
 import cv2
 
 
-class pca_class:
-    def __init__(self, images, y, target_names, no_of_elements, num_components):
+class PCA:
+    def find_k(eigenvalues, quality_percent):
+        """
+        Tìm số lượng thành phần chính (K) sao cho giữ lại ít nhất quality_percent % tổng năng lượng.
+
+        Args:
+            eigenvalues (np.ndarray): Mảng trị riêng đã sắp xếp giảm dần.
+            quality_percent (float): Tỷ lệ phần trăm chất lượng cần giữ lại (0-100).
+
+        Returns:
+            int: Số lượng thành phần chính cần thiết.
+        """
+        total_energy = np.sum(eigenvalues)
+        threshold = quality_percent / 100 * total_energy
+        temp = 0
+        K = 0
+        while temp < threshold:
+            temp += eigenvalues[K]
+            K += 1
+        return K
+
+    def __init__(self, images, y, target_names, no_of_elements, quality_percent=100):
         """
         images: Mảng 2D (N^2 x M), mỗi cột là một ảnh đã flatten.
         y: Danh sách nhãn ứng với từng ảnh.
         target_names: Tên lớp (ví dụ: tên người).
         no_of_elements: Danh sách số ảnh trong mỗi lớp.
-        num_components: Số lượng thành phần chính giữ lại.
+        quality_percent: Tỷ lệ phần trăm chất lượng cần giữ lại (0-100).
         """
         self.no_of_elements = no_of_elements
         self.images = np.asarray(images)
         self.y = y
         self.target_names = target_names
+        self.quality_percent = quality_percent
 
 
         # 1. Tính ảnh trung bình
@@ -25,12 +46,12 @@ class pca_class:
         self.training_set = self.images - self.mean_face
 
         # 3. Tính eigenfaces và trị riêng
-        self.eigenfaces, self.eigenvalues = self._get_eigenfaces(self.training_set, num_components)
+        self.eigenfaces, self.eigenvalues = self._get_eigenfaces(self.training_set)
 
         # 4. Chiếu toàn bộ tập huấn luyện lên không gian đặc trưng
         self.new_coordinates = self.get_projected_data()
 
-    def _get_eigenfaces(self, input_data, K):
+    def _get_eigenfaces(self, input_data):
         """
         Tính các eigenfaces từ tập ảnh đã chuẩn hóa.
         """
@@ -50,8 +71,9 @@ class pca_class:
         eigenvalues = eigenvalues[non_zero_idx]
         eigenvectors = eigenvectors[:, non_zero_idx]
 
-        if len(eigenvalues) < K:
-            raise ValueError(f"Chỉ có {len(eigenvalues)} trị riêng khác 0, nhưng yêu cầu {K} thành phần chính!")
+        # Tính số lượng thành phần chính cần thiết
+        K = PCA.find_k(eigenvalues, self.quality_percent)
+
         # u_i = A * v_i
         eigenfaces = A @ eigenvectors[:, :K]
         eigenfaces /= np.linalg.norm(eigenfaces, axis=0)  # chuẩn hóa
