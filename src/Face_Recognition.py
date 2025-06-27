@@ -39,7 +39,7 @@ cv2.imshow("Original Image", cv2.resize(np.reshape(scaled_face[:, 1], (img_heigh
 cv2.waitKey(0)
 
 # Khởi tạo PCA và huấn luyện
-my_algo = pca_class(scaled_face, y, target_names, no_of_elements, num_components=90)
+my_algo = pca_class(scaled_face, y, target_names, no_of_elements, num_components=14)
 
 # Hiển thị một ảnh đã được chiếu lên không gian đặc trưng PCA
 # Lấy dữ liệu đã chiếu lên PCA space
@@ -67,11 +67,10 @@ for i, img_path in enumerate(images_names_for_test):
     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
     img = cv2.resize(img, (img_width, img_height))
     img_vector = img.flatten().reshape(-1, 1)
-    phi = img_vector - my_algo.mean_face
-    new_cord_pca = my_algo.get_eigenfaces().T @ phi
-
+    
     # Nhận diện
-    predicted_name = my_algo.recognize_face(new_cord_pca, k=i)
+    predicted_name = my_algo.recognize_face_knn(img_vector, k=5, threshold=4000)
+
     time_elapsed = time.process_time() - time_start
     net_time_of_reco += time_elapsed
 

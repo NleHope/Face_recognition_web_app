@@ -71,28 +71,52 @@ class pca_class:
         Phi = self.training_set  # đã trừ mean trước đó
         return self.eigenfaces.T @ Phi  # (K x M)
 
-    def recognize_face(self, new_cord_pca, k=0):
+    def recognize_face_knn(self, face_vector, k=3, threshold=None):
         """
-        Dự đoán người dựa trên vector PCA đầu vào bằng khoảng cách Euclidean với trung bình lớp.
+        Nhận diện khuôn mặt bằng thuật toán KNN.
+
+        Parameters:
+            face_vector: vector ảnh đầu vào (N x 1), đã flatten.
+            k: số lượng lân cận gần nhất.
+            threshold: ngưỡng khoảng cách tùy chọn (nếu muốn loại bỏ ảnh quá khác biệt).
+
+        Returns:
+            Tên người được nhận diện hoặc 'Unknown'
+
+        Ta sẽ:
+        Chiếu ảnh mới vào không gian đặc trưng PCA như trước.
+        Tính khoảng cách Euclidean giữa vector mới với tất cả vector huấn luyện (không chỉ trung bình lớp).
+        Lấy k điểm gần nhất.
+        Bỏ phiếu (majority voting) theo nhãn để xác định lớp.
         """
-        classes = len(self.no_of_elements)
-        start = 0
-        distances = []
+        if face_vector.shape != self.mean_face.shape:
+            raise ValueError(f"Kích thước ảnh không khớp: {face_vector.shape} != {self.mean_face.shape}")
 
-        for i in range(classes):
-            class_vectors = self.new_coordinates[:, start:start + self.no_of_elements[i]]
-            class_mean = np.mean(class_vectors, axis=1)
-            dist = np.linalg.norm(new_cord_pca - class_mean)
-            distances.append(dist)
-            start += self.no_of_elements[i]
+        # Chuẩn hóa và chiếu vào không gian đặc trưng
+        phi = face_vector - self.mean_face
+        projected_vector = self.eigenfaces.T @ phi  # (K x 1)
 
-        min_index = np.argmin(distances)
-        threshold = 100000
+        # Tính khoảng cách đến toàn bộ tập huấn luyện
+        projected_vector = projected_vector.flatten()  # (K, )
+        all_vectors = self.new_coordinates.T  # (M x K)
+        distances = np.linalg.norm(all_vectors - projected_vector, axis=1)  # (M, )
 
-        if distances[min_index] < threshold:
-            print(f"Person {k} : {min_index} - {self.target_names[min_index]}")
-            return self.target_names[min_index]
-        else:
-            print(f"Person {k} : {min_index} - Unknown")
-            return "Unknown"
+        # Lấy k vector gần nhất
+        nearest_indices = np.argsort(distances)[:k]
+        nearest_labels = [self.y[i] for i in nearest_indices]
 
+        # Bỏ phiếu theo nhãn
+        votes = {}
+        for label in nearest_labels:
+            votes[label] = votes.get(label, 0) + 1
+
+        # Tìm nhãn được bình chọn nhiều nhất
+        predicted_label = max(votes, key=votes.get)
+
+        # Nếu dùng threshold để kiểm tra khoảng cách gần nhất
+        if threshold is not None:
+            min_distance = distances[nearest_indices[0]]
+            if min_distance > threshold:
+                return "Unknown"
+
+        return self.target_names[predicted_label]

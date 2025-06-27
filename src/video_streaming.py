@@ -211,10 +211,10 @@ async def frame_processor_task():
                                 continue
 
                             # ✅ Nhận diện PCA
-                            label = pca_model.recognize_face(face_vector, threshold=4000)
+                            label = pca_model.recognize_face_knn(face_vector, k=5, threshold=4000)
+
                             det["label"] = label  # Gắn label vào detection
 
-                            # ✅ Vẽ bbox và label từ PCA
                             x1, y1, x2, y2 = det["box"]
                             cv2.rectangle(processed_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                             cv2.putText(processed_frame, str(label), (x1, y1 - 10),
