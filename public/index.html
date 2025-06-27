@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Object Detection with PCA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="font-sans flex flex-col items-center min-h-screen p-2">
+    <h1 class="text-4xl font-extrabold text-white mb-6 animate-pulse text-shadow">Real-Time Object Detection (Webcam)</h1>
+    
+    <div class="flex flex-col lg:flex-row w-full max-w-full gap-2">
+        <!-- Video and Image Section -->
+        <div class="flex-1 flex flex-col lg:flex-row gap-2 w-full">
+            <div class="flex-1">
+                <h2 class="text-xl font-semibold text-white mb-2 text-shadow">Your Webcam (Raw)</h2>
+                <video id="webcamVideo" width="640" height="480" autoplay muted class="border-2 border-gray-300 bg-gray-900 rounded-lg shadow-lg w-full h-[480px] object-cover"></video>
+            </div>
+            <div class="flex-1">
+                <h2 class="text-xl font-semibold text-white mb-2 text-shadow">Processed Output (YuNet & PCA)</h2>
+                <img id="processedImage" width="640" height="480" class="border-2 border-gray-300 bg-gray-900 rounded-lg shadow-lg w-full h-[480px] object-cover"></img>
+            </div>
+            <canvas id="webcamCanvas" width="640" height="480" class="hidden"></canvas>
+        </div>
+        
+        <!-- Attendance Log Section -->
+        <div class="w-full lg:w-1/4 ml-2">
+            <h2 class="text-xl font-semibold text-white mb-2 text-shadow">Attendance Log</h2>
+            <div id="attendanceContainer" class="bg-gray-900 p-2 rounded-lg shadow-xl border border-gray-300 max-h-[480px] overflow-y-auto">
+                <table id="attendanceTable" class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-800 text-white">
+                            <th class="p-2 text-left">Name</th>
+                            <th class="p-2 text-left">Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceBody"></tbody>
+                </table>
+                <p id="noDataMessage" class="text-gray-400 text-center mt-2 hidden">No attendance data available.</p>
+            </div>
+            <button id="refreshButton" class="bg-blue-700 text-white px-4 py-2 rounded-lg mt-2 hover:bg-blue-800 transition-all shadow-md w-full lg:w-auto">Refresh</button>
+        </div>
+    </div>
+    
+    <!-- Button Section -->
+    <div class="flex justify-center w-full mt-4 gap-4">
+        <button id="startButton" class="bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-800 transition-all shadow-md">Start Stream</button>
+        <button id="stopButton" class="bg-red-700 text-white px-6 py-3 rounded-lg hover:bg-red-800 transition-all shadow-md" disabled>Stop Stream</button>
+    </div>
+    
+    <!-- Log Container -->
+    <div class="w-full max-w-full mt-4">
+        <h2 class="text-xl font-semibold text-white mb-2 text-shadow">Logs</h2>
+        <div class="bg-gray-900 p-2 rounded-lg shadow-xl border border-gray-300 max-h-[240px] overflow-y-auto w-full h-[240px]">
+            <pre id="log" class="text-sm text-white"></pre>
+        </div>
+    </div>
+
+    <script src="/static/scripts.js"></script>
+</body>
+</html>
