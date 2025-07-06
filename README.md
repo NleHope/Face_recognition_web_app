@@ -1,10 +1,10 @@
 # Real-Time Object Detection & Attendance Tracking System
 
-A powerful, flexible real-time object detection system built with YOLOv8 ( just for example) and FastAPI that automatically tracks attendance by detecting and logging unique objects/people in video streams. Perfect for attendance monitoring, security applications, and object tracking scenarios.
+A powerful, flexible real-time object detection system built with Yunet ( just for example) and FastAPI that automatically tracks attendance by detecting and logging unique objects/people in video streams. Perfect for attendance monitoring, security applications, and object tracking scenarios.
 
-## 🌟 Key Features
+## Key Features
 
-- **Real-Time Object Detection**: Uses YOLOv8 for accurate, fast object detection demo
+- **Real-Time Object Detection**: Uses Yunet for accurate, fast object detection demo
 - **Automatic Attendance Tracking**: Logs each detected class only once with timestamps
 - **Live Web Interface**: Beautiful, responsive web UI with real-time video streaming
 - **Multi-Client Support**: Handles up to 4 concurrent video streams
@@ -12,7 +12,7 @@ A powerful, flexible real-time object detection system built with YOLOv8 ( just 
 - **Cloud & Local Support**: Works with ngrok for public access or locally
 - **Performance Optimized**: GPU acceleration, batch processing, and efficient WebSocket communication
 
-## 🎯 Use Cases
+## Use Cases
 
 ### Attendance Tracking
 - **Classrooms**: Automatically track student attendance
@@ -27,16 +27,16 @@ A powerful, flexible real-time object detection system built with YOLOv8 ( just 
 - **Vehicle Tracking**: Monitor different types of vehicles
 
 ### Flexibility Benefits
-- **Easy Model Swapping**: Replace YOLOv8 with any other detection model
+- **Easy Model Swapping**: Replace Yunet with any other detection model
 - **Custom Processing**: Modify `processor.py` for specific detection logic
 - **Adaptable Interface**: Customize the web UI for different use cases
 - **Scalable**: Add more processing nodes or modify for different scenarios
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Web Client    │◄──►│   FastAPI Server │◄──►│  YOLO Processor │
+│   Web Client    │◄──►│   FastAPI Server │◄──►│  Yunet Processor │
 │  (HTML/JS/CSS)  │    │  (WebSocket API) │    │   (Detection)   │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
                                 │
@@ -47,7 +47,7 @@ A powerful, flexible real-time object detection system built with YOLOv8 ( just 
                        └─────────────────┘
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 PCA_FaceDetection/
@@ -68,7 +68,7 @@ PCA_FaceDetection/
 └── README.md                 # This file
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.8+
@@ -97,7 +97,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. **Download YOLOv8 model or your model** (if not included)
+4. **Download Yunet model or your model** (if not included)
 ```bash
 # The model will be automatically downloaded on first run
 # Or manually download to models/yolov8n.pt
@@ -161,7 +161,7 @@ max_queue_size_output = 2
 targetFPS = 15  # In scripts.js
 ```
 
-## 🎨 Customization Guide
+## Customization Guide
 
 ### 1. Changing Detection Models
 
@@ -205,7 +205,7 @@ Modify `public/` files:
 - `styles.css`: Customize appearance and animations
 - `scripts.js`: Modify frontend behavior
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### REST API
 - `GET /health` - Server health check
@@ -215,7 +215,7 @@ Modify `public/` files:
 ### WebSocket
 - `WS /ws/webcam_stream` - Real-time video streaming
 
-## 📈 Performance Features
+## Performance Features
 
 ### GPU Acceleration
 - Automatic CUDA detection and utilization
@@ -281,7 +281,7 @@ The application provides detailed logging:
 3. **For multiple cameras**: Increase `max_clients` and server resources
 4. **For specific objects**: Fine-tune confidence thresholds per class
 
-## 🤝 Contributing
+## Contributing
 
 This system is designed to be highly modular and extensible:
 
@@ -290,31 +290,7 @@ This system is designed to be highly modular and extensible:
 3. **UI Components**: Reusable frontend elements
 4. **API Extensions**: Simple to add new endpoints
 
-## 📄 License
-
-MIT License
-
-Copyright (c) 2025 [Your Name]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Ultralytics**: For the excellent YOLOv8 implementation
 - **FastAPI**: For the high-performance web framework
