@@ -1,4 +1,4 @@
-# Real-Time Object Detection & Attendance Tracking System
+# Real-Time Face Recognition & Attendance Tracking System
 
 A powerful, flexible real-time object detection system built with Yunet ( just for example) and FastAPI that automatically tracks attendance by detecting and logging unique objects/people in video streams. Perfect for attendance monitoring, security applications, and object tracking scenarios.
 
