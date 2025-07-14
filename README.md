@@ -4,7 +4,7 @@ A powerful, flexible real-time object detection system built with Yunet ( just f
 
 ## Key Features
 
-- **Real-Time Object Detection**: Uses Yunet for accurate, fast object detection demo
+- **Real-Time Object Detection**: Uses Yunet for an accurate and fast object detection demo
 - **Automatic Attendance Tracking**: Logs each detected class only once with timestamps
 - **Live Web Interface**: Beautiful, responsive web UI with real-time video streaming
 - **Multi-Client Support**: Handles up to 4 concurrent video streams
@@ -118,18 +118,7 @@ python video_streaming.py
 http://127.0.0.1:8080/static/index.html
 ```
 
-**Public Access (with ngrok):**
-- The application automatically creates a public ngrok URL
-- Check the console output for the ngrok link
-- Access: `https://your-ngrok-url.ngrok.io/static/index.html`
-
-3. **Use the interface**
-- Click "Start Stream" to begin webcam detection
-- View real-time processed video with bounding boxes
-- Monitor attendance log in the right panel
-- Check logs at the bottom for system status
-
-## 🔧 Configuration
+## Configuration
 
 ### Model Configuration
 Edit `src/video_streaming.py`:
@@ -165,7 +154,7 @@ targetFPS = 15  # In scripts.js
 
 ### 1. Changing Detection Models
 
-Replace the YOLOv8 model with any compatible model:
+Replace the Yunet model with any compatible model:
 
 ```python
 # In yolo_processor.py
@@ -234,7 +223,7 @@ Modify `public/` files:
 - Non-blocking operations
 - Resource monitoring
 
-## 🔍 Monitoring & Debugging
+##  Monitoring & Debugging
 
 ### Log Monitoring
 The application provides detailed logging:
@@ -249,24 +238,24 @@ The application provides detailed logging:
 - Unique detection logging
 - Real-time web display
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
 **1. Camera Access Denied**
 - Check browser permissions
-- Ensure camera is not used by other applications
+- Ensure the camera is not used by other applications
 - Try different browsers (Chrome recommended)
 
 **2. Model Loading Errors**
 - Verify model file exists in `models/` directory
 - Check CUDA installation for GPU acceleration
-- Ensure sufficient memory available
+- Ensure sufficient memory is available
 
 **3. WebSocket Connection Issues**
 - Check firewall settings
 - Verify port 8080 is available
-- For ngrok: ensure stable internet connection
+- For ngrok: ensure a stable internet connection
 
 **4. Performance Issues**
 - Reduce target FPS in `scripts.js`
@@ -293,7 +282,7 @@ This system is designed to be highly modular and extensible:
 ## Acknowledgments
 
 - **Ultralytics**: For the excellent YOLOv8 implementation
-- **FastAPI**: For the high-performance web framework
+- **FastAPI**: For a high-performance web framework
 - **OpenCV**: For computer vision operations
 - **PyTorch**: For deep learning capabilities
 
